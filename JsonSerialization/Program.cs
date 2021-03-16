@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 
 namespace JsonSerialization
 {
@@ -35,13 +37,15 @@ namespace JsonSerialization
             SavingObject so = new SavingObject(3, "Число ");
             JsonSerializerOptions jso = new JsonSerializerOptions();
             jso.IncludeFields = true;
+            jso.Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic);
 
             using (StreamWriter sw = new StreamWriter("data.json", false, Encoding.UTF8))
             {
-                sw.WriteLine(JsonSerializer.Serialize(so, jso));
+                Console.WriteLine(Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(so, jso)));
+                sw.WriteLine(Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(so, jso)));
             }
 
-            using (StreamReader sr = new StreamReader("data.json", Encoding.ASCII))
+            using (StreamReader sr = new StreamReader("data.json", Encoding.UTF8))
             {
                 var line = sr.ReadLine();
                 SavingObject oo = JsonSerializer.Deserialize<SavingObject>(line, jso);
